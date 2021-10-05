@@ -1,6 +1,6 @@
 import { Ed25519Provider } from "key-did-provider-ed25519";
 import KeyResolver from "key-did-resolver";
-import { DID } from "dids";
+import { DagJWS, DID } from "dids";
 import crypto from "crypto";
 
 // did key looks like did:key:123
@@ -11,6 +11,12 @@ export const createDIDKey = async (seed: Uint8Array): Promise<DID> => {
   return did;
 };
 
-export const createDIDSeed = (message: string): string => {
-  return crypto.createHash("sha256").update(message).digest("hex");
+export const createDIDSeed = (messages: string[]): string => {
+  const hash = crypto.createHash("sha256");
+  messages.forEach((m) => hash.update(m));
+  return hash.digest("hex");
+};
+
+export const serializeJWS = (jws: DagJWS): string => {
+  return `${jws.signatures[0].protected}.${jws.payload}.${jws.signatures[0].signature}`;
 };
